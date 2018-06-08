@@ -42,6 +42,7 @@ class BPE(object):
             self.version = (0, 1)
             codes.seek(0)
 
+        # [('A', 'B'), ('C', 'D'), ...]
         self.bpe_codes = [tuple(item.strip('\r\n ').split(' ')) for (n, item) in enumerate(codes) if (n < merges or merges == -1)]
 
         for i, item in enumerate(self.bpe_codes):
@@ -51,8 +52,10 @@ class BPE(object):
                 sys.exit(1)
 
         # some hacking to deal with duplicates (only consider first instance)
+        # more little index, more high frequency
         self.bpe_codes = dict([(code,i) for (i,code) in reversed(list(enumerate(self.bpe_codes)))])
 
+        # {'AB': ('A', 'B')}
         self.bpe_codes_reverse = dict([(pair[0] + pair[1], pair) for pair,i in self.bpe_codes.items()])
 
         self.separator = separator
@@ -198,6 +201,7 @@ def encode(orig, bpe_codes, bpe_codes_reverse, vocab, separator, version, cache,
         return orig
 
     while True:
+        # pair of highies frequency
         bigram = min(pairs, key = lambda pair: bpe_codes.get(pair, float('inf')))
         if bigram not in bpe_codes:
             break
@@ -214,11 +218,13 @@ def encode(orig, bpe_codes, bpe_codes_reverse, vocab, separator, version, cache,
                 break
 
             if word[i] == first and i < len(word)-1 and word[i+1] == second:
+                # merge pair
                 new_word.append(first+second)
                 i += 2
             else:
                 new_word.append(word[i])
                 i += 1
+
         new_word = tuple(new_word)
         word = new_word
         if len(word) == 1:

@@ -105,17 +105,16 @@ def learn_joint_bpe_and_vocab(args):
         tmp.close()
 
         tmpout = codecs.open(tmp.name, 'w', encoding='UTF-8')
-
         train_file.seek(0)
         for line in train_file:
             tmpout.write(bpe.segment(line).strip())
             tmpout.write('\n')
-
         tmpout.close()
-        tmpin = codecs.open(tmp.name, encoding='UTF-8')
 
+        tmpin = codecs.open(tmp.name, encoding='UTF-8')
         vocab = learn_bpe.get_vocabulary(tmpin)
         tmpin.close()
+
         os.remove(tmp.name)
 
         for key, freq in sorted(vocab.items(), key=lambda x: x[1], reverse=True):

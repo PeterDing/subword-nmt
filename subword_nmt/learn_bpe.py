@@ -85,11 +85,16 @@ def update_pair_statistics(pair, changed, stats, indices):
     if we merge a pair of symbols, only pairs that overlap with occurrences
     of this pair are affected, and need to be updated.
     """
+
+    # pair is not existed after replaced by `replace_pair`
     stats[pair] = 0
     indices[pair] = defaultdict(int)
+
     first, second = pair
     new_pair = first+second
     for j, word, old_word, freq in changed:
+        # word: ('A', 'BC')
+        # old_word: ('A', 'B', 'C')
 
         # find all instances of pair, and update frequency/indices around it
         i = 0
@@ -113,6 +118,8 @@ def update_pair_statistics(pair, changed, stats, indices):
                         nex = old_word[i+1:i+3]
                         stats[nex] -= freq
                         indices[nex][j] -= 1
+
+                # pass the word
                 i += 2
             else:
                 i += 1
@@ -135,6 +142,8 @@ def update_pair_statistics(pair, changed, stats, indices):
                 nex = word[i:i+2]
                 stats[nex] += freq
                 indices[nex][j] += 1
+
+            # pass the word
             i += 1
 
 
@@ -163,7 +172,10 @@ def replace_pair(pair, vocab, indices):
     pair_str = ''.join(pair)
     pair_str = pair_str.replace('\\','\\\\')
     changes = []
+
+    # XXX, this is "\S"
     pattern = re.compile(r'(?<!\S)' + re.escape(first + ' ' + second) + r'(?!\S)')
+
     if sys.version_info < (3, 0):
         iterator = indices[pair].iteritems()
     else:
@@ -206,6 +218,10 @@ def learn_bpe(infile, outfile, num_symbols, min_frequency=2, verbose=False, is_d
     outfile.write('#version: 0.2\n')
 
     vocab = get_vocabulary(infile, is_dict)
+    #
+    # >>> tuple('abc')
+    # >>> ('a', 'b', 'c')
+    #
     vocab = dict([(tuple(x[:-1])+(x[-1]+'</w>',) ,y) for (x,y) in vocab.items()])
     sorted_vocab = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
 
