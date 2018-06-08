@@ -5,6 +5,8 @@ This repository contains preprocessing scripts to segment text into subword
 units. The primary purpose is to facilitate the reproduction of our experiments
 on Neural Machine Translation with subword units (see below for reference).
 
+> Paper https://arxiv.org/abs/1508.07909
+
 INSTALLATION
 ------------
 
